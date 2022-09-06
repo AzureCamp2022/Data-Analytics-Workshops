@@ -1,0 +1,43 @@
+(tbl as table, colName as text) =>
+  let
+    SplitTableColumn = Table.SplitColumn(
+      tbl, 
+      colName, 
+      Splitter.SplitTextByDelimiter("/", QuoteStyle.Csv), 
+      {colName & ".1", colName & ".2", colName & ".3"}
+    ), 
+    ChangedType = Table.TransformColumnTypes(
+      SplitTableColumn, 
+      {{colName & ".1", Int64.Type}, {colName & ".2", Int64.Type}, {colName & ".3", Int64.Type}}
+    ), 
+
+    tblColsRename = Table.RenameColumns(ChangedType,{{colName & ".1","colNameDay"},{colName & ".2","colNameMonth"},{colName & ".3","colNameYear"}}),
+     
+    CustomColumn = Table.AddColumn(
+      tblColsRename, 
+      colName, 
+      each 
+      
+      try
+        Text.Combine(
+          {
+            if Text.Length(Text.From([colNameMonth])) = 1 then
+              Text.Combine({"0", Text.From([colNameMonth])})
+            else
+              Text.From([colNameMonth]), 
+            "/", 
+            if Text.Length(Text.From([colNameDay])) = 1 then
+              Text.Combine({"0", Text.From([colNameDay])})
+            else
+              Text.From([colNameDay]), 
+            "/", 
+            Text.From([colNameYear])
+          }
+        )
+
+      otherwise null
+    ), 
+    ChangedTypeCustomColumn = Table.TransformColumnTypes(CustomColumn, {{colName, type date}}),
+    RemoveCols = Table.RemoveColumns(ChangedTypeCustomColumn,{"colNameDay", "colNameMonth", "colNameYear"})
+  in
+    RemoveCols
