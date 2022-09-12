@@ -1,0 +1,12 @@
+D_Dates = 
+ADDCOLUMNS (
+    CALENDARAUTO (),
+    "Year", YEAR ( [Date] ),
+    "Year Quarter", YEAR ( [Date] ) & "-Q" & QUARTER ( [Date] ),
+    "Year Quarter Int", INT (YEAR ( [Date] ) & QUARTER ( [Date] ) ),
+    "Year Month Number", YEAR ( [Date] ) & "-" &  FORMAT ( [Date] , "mm" ),
+    "Year Month Number Int", INT ( YEAR ( [Date] ) &  FORMAT ( [Date] , "mm" ) & "01"),
+    "Quarter", "Q" & QUARTER ( [Date] ),
+    "Month", FORMAT ( [Date], "mmmm" ),
+    "Month Number", MONTH ( [Date] )
+)
